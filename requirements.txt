@@ -1,6 +1,10 @@
-requests
-scapy
-colorama
-aiohttp
-fake-useragent
-proxy-requests
+# requirements-minimal.txt
+# FAQAT KERAKLILARI - 100% ISHLAYDI
+
+requests==2.31.0
+colorama==0.4.6
+scapy==2.5.0
+aiohttp==3.9.1
+fake-useragent==1.5.0
+pysocks==1.7.1
+proxy-requests==0.6.2
