@@ -42,6 +42,10 @@ source venv/bin/activate
 ```bash
 pip install -r requirements.txt
 ```
+Additional libraries
+```bash
+pip install requests
+```
 ```bash
 python3 DDOS.py
 ```
