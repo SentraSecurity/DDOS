@@ -46,8 +46,9 @@ class DDoSTool:
         """Bannerni chiqarish"""
         self.clear()
         print(RED + "╔══════════════════════════════════════════════════════════╗")
-        print("║" + GREEN + "              DDoS ATTACK TOOL v3.0                     " + RED + "║")
-        print("║" + YELLOW + "           ⚡ 100% ISHLAYDIGAN VERSIYA ⚡                " + RED + "║")
+        print("║" + GREEN + "              DDoS ATTACK TOOL v0.1 BETA                 " + RED + "║")
+        print("║" + RED + "                  Created by khamidjanow                   " + RED + "║")
+        print("║" + YELLOW + "           ⚡ 100% ISHLAYDIGAN VERSIYA ⚡               " + RED + "║")
         print("╠══════════════════════════════════════════════════════════╣")
         print("║" + CYAN + "  [1] HTTP Flood    - Web saytlar uchun                   " + RED + "║")
         print("║" + CYAN + "  [2] Slowloris     - Serverlarni bo'g'ish                " + RED + "║")
