@@ -1,4 +1,4 @@
- 💣 DDoS Attack Tool v2.0
+ 💣 DDoS Attack Tool v0.1  BETA‼️
 
 ![Python](https://img.shields.io/badge/Python-3.6%2B-blue)
 ![License](https://img.shields.io/badge/License-MIT-green)
