@@ -1,6 +1,3 @@
-# requirements-minimal.txt
-# FAQAT KERAKLILARI - 100% ISHLAYDI
-
 requests==2.31.0
 colorama==0.4.6
 scapy==2.5.0
