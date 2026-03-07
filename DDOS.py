@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 virtual mode
+#!/usr/bin/env python3 virtual mode activated use
 # -*- coding: utf-8 -*-
 # DDoS Attack Tool v0.1 BETA- TO'LIQ ISHLAYDIGAN VERSIYA
 # Tested on Python 3.6+ / Kali Linux / Termux
