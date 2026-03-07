@@ -28,8 +28,7 @@ Bu tool **faqat o'quv maqsadida** yaratilgan. O'z serverlaringizni test qilish u
 
 ### **1. Reponi clone qilish:**
 ```bash
-git clone https://github.com/yourusername/ddos-tool.git
-cd ddos-tool
+git clone https://github.com/BLACK-CYBER-TOOLS/DDOS.git
 ```
 ```bash
 cd DDOS
