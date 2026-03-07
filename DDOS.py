@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-# DDoS Attack Tool v3.0 - TO'LIQ ISHLAYDIGAN VERSIYA
+# DDoS Attack Tool v0.1 BETA- TO'LIQ ISHLAYDIGAN VERSIYA
 # Tested on Python 3.6+ / Kali Linux / Termux
 
 import os
