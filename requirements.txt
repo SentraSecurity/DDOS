@@ -1,6 +1,6 @@
-requests==2.31.0
-scapy==2.5.0
-colorama==0.4.6
-aiohttp==3.9.1
-fake-useragent==1.4.0
-proxy-requests==0.6.0
+requests
+scapy
+colorama
+aiohttp
+fake-useragent
+proxy-requests
