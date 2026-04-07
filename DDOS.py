@@ -47,7 +47,7 @@ class DDoSTool:
         self.clear()
         print(RED + "╔══════════════════════════════════════════════════════════╗")
         print("║" + GREEN + "              DDoS ATTACK TOOL v0.1 BETA                  " + RED + "║")
-        print("║" + RED + "                Created by khamidjanow                    " + RED + "║")
+        print("║" + RED + "                Created by khamitjanow                    " + RED + "║")
         print("║" + YELLOW + "                     BETA VERSIYA                         " + RED + "║")
         print("╠══════════════════════════════════════════════════════════╣")
         print("║" + CYAN + "  [1] HTTP Flood    - Web saytlar uchun                   " + RED + "║")
